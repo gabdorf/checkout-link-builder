@@ -559,6 +559,74 @@
         </div>
       </div>
 
+      <!-- UTM Parameters -->
+      <div class="card">
+        <h2 class="section-toggle" onclick="toggleSection(this)">
+          <span class="icon">&#128200;</span> UTM Parameters
+        </h2>
+        <div class="collapsible" id="utm-fields">
+          <div class="form-grid" style="margin-top: 12px">
+            <div class="form-group">
+              <label for="utm_medium">utm_medium</label>
+              <select id="utm_medium" onchange="buildUrl()">
+                <option value="">— None</option>
+                <optgroup label="Paid">
+                  <option value="cpc">cpc (Search Ads)</option>
+                  <option value="paid_social">paid_social (Meta, LinkedIn)</option>
+                  <option value="paid_display">paid_display (Display Ads)</option>
+                  <option value="paid_other">paid_other</option>
+                  <option value="print">print (QR Codes)</option>
+                </optgroup>
+                <optgroup label="Events & Partnerships">
+                  <option value="event">event (Trade Show / Conference)</option>
+                  <option value="webinar">webinar (Virtual Event)</option>
+                  <option value="partner">partner (Partner Referral)</option>
+                  <option value="podcast">podcast (Partner Podcast)</option>
+                  <option value="flyer">flyer (Offline)</option>
+                </optgroup>
+                <optgroup label="Outbound">
+                  <option value="email">email (Sequences, Newsletters)</option>
+                  <option value="sales_outreach">sales_outreach (AE)</option>
+                  <option value="sales_walk_in">sales_walk_in</option>
+                </optgroup>
+                <optgroup label="Organic / Earned">
+                  <option value="organic">organic (SEO, Social, Content)</option>
+                  <option value="pr">pr (Press)</option>
+                </optgroup>
+                <optgroup label="Referrals">
+                  <option value="referral">referral (Customer, Employee, Advisor)</option>
+                </optgroup>
+                <optgroup label="Product-led">
+                  <option value="self_serve">self_serve (Trial)</option>
+                  <option value="in_app">in_app (Upgrade, Expansion)</option>
+                </optgroup>
+              </select>
+              <span class="hint">How — the type of channel (e.g. event, email, paid_social)</span>
+            </div>
+            <div class="form-group">
+              <label for="utm_source">utm_source</label>
+              <input
+                type="text"
+                id="utm_source"
+                placeholder="e.g. google, meta, infodent"
+                oninput="buildUrl()"
+              />
+              <span class="hint">Who/where — the specific platform or name (e.g. google, meta, infodent, partner_dentaltechgmbh)</span>
+            </div>
+            <div class="form-group full-width">
+              <label for="utm_campaign">utm_campaign</label>
+              <input
+                type="text"
+                id="utm_campaign"
+                placeholder="e.g. boothq1, spring_promo"
+                oninput="buildUrl()"
+              />
+              <span class="hint">What — the specific initiative or action (e.g. boothq1, spring_promo, webinar_dentalai). Example: medium=event, source=infodent, campaign=boothq1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Output -->
       <div class="card output-card">
         <h2>Generated Link</h2>
@@ -600,6 +668,8 @@
         "paidMicQuantity",
         "couponCode",
       ];
+      const UTM_FIELDS = ["utm_source", "utm_medium", "utm_campaign"];
+
       const CONTACT_FIELDS = [
         "email",
         "firstName",
@@ -653,8 +723,8 @@
 
         var fields =
           currentRoute === "offer"
-            ? PRODUCT_FIELDS.concat(CONTACT_FIELDS)
-            : PRODUCT_FIELDS;
+            ? PRODUCT_FIELDS.concat(CONTACT_FIELDS).concat(UTM_FIELDS)
+            : PRODUCT_FIELDS.concat(UTM_FIELDS);
 
         for (var i = 0; i < fields.length; i++) {
           var key = fields[i];
@@ -740,7 +810,7 @@
       }
 
       function resetForm() {
-        var all = PRODUCT_FIELDS.concat(CONTACT_FIELDS);
+        var all = PRODUCT_FIELDS.concat(CONTACT_FIELDS).concat(UTM_FIELDS);
         for (var i = 0; i < all.length; i++) {
           var el = document.getElementById(all[i]);
           if (!el) continue;

@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sonia Checkout Link Builder</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: #fff;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 20px 0;
+      }
+      .header-inner {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .header h1 {
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .header .badge {
+        font-size: 11px;
+        background: #e8e8e8;
+        color: #666;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-weight: 500;
+      }
+
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      /* Route toggle */
+      .route-toggle {
+        display: flex;
+        gap: 0;
+        margin-bottom: 24px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #d0d0d0;
+        background: #fff;
+      }
+      .route-toggle button {
+        flex: 1;
+        padding: 12px 16px;
+        border: none;
+        background: #fff;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        color: #666;
+        transition: all 0.15s;
+      }
+      .route-toggle button.active {
+        background: #1a1a1a;
+        color: #fff;
+      }
+      .route-toggle button:not(.active):hover {
+        background: #f0f0f0;
+      }
+
+      /* Cards */
+      .card {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 24px;
+        margin-bottom: 16px;
+      }
+      .card h2 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card h2 .icon {
+        font-size: 16px;
+      }
+
+      /* Form grid */
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 16px;
+      }
+      .form-grid.three-col {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+      @media (max-width: 600px) {
+        .form-grid,
+        .form-grid.three-col {
+          grid-template-columns: 1fr;
+        }
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+      .form-group label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #666;
+      }
+      .form-group input,
+      .form-group select {
+        padding: 8px 10px;
+        border: 1px solid #d0d0d0;
+        border-radius: 6px;
+        font-size: 14px;
+        background: #fff;
+        color: #1a1a1a;
+        transition: border-color 0.15s;
+      }
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #888;
+      }
+      .form-group input::placeholder {
+        color: #bbb;
+      }
+      .form-group .hint {
+        font-size: 11px;
+        color: #999;
+      }
+
+      /* Checkbox row */
+      .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-top: 4px;
+      }
+      .checkbox-row input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #1a1a1a;
+        cursor: pointer;
+      }
+      .checkbox-row label {
+        font-size: 13px;
+        color: #555;
+        cursor: pointer;
+      }
+
+      /* Output */
+      .output-card {
+        background: #1a1a1a;
+        border: none;
+        color: #fff;
+      }
+      .output-card h2 {
+        color: #aaa;
+      }
+      .url-display {
+        background: #2a2a2a;
+        border-radius: 6px;
+        padding: 14px 16px;
+        font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+        font-size: 13px;
+        word-break: break-all;
+        line-height: 1.5;
+        color: #e0e0e0;
+        min-height: 44px;
+        border: 1px solid #3a3a3a;
+      }
+      .url-display .base {
+        color: #888;
+      }
+      .url-display .param-key {
+        color: #7cb3f0;
+      }
+      .url-display .param-val {
+        color: #a8d8a8;
+      }
+      .url-display .sep {
+        color: #666;
+      }
+
+      .output-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: none;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-primary {
+        background: #fff;
+        color: #1a1a1a;
+      }
+      .btn-primary:hover {
+        background: #e8e8e8;
+      }
+      .btn-secondary {
+        background: #333;
+        color: #ccc;
+      }
+      .btn-secondary:hover {
+        background: #444;
+      }
+      .btn-success {
+        background: #2e7d32;
+        color: #fff;
+      }
+
+      /* Info banner for in-app */
+      .info-banner {
+        background: #f0f4ff;
+        border: 1px solid #c8d8f0;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        color: #445;
+        line-height: 1.5;
+      }
+
+      /* Collapsible */
+      .section-toggle {
+        cursor: pointer;
+        user-select: none;
+      }
+      .section-toggle::before {
+        content: "";
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-left: 5px solid #999;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        margin-right: 6px;
+        transition: transform 0.15s;
+      }
+      .section-toggle.open::before {
+        transform: rotate(90deg);
+      }
+      .collapsible {
+        display: none;
+      }
+      .collapsible.open {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-inner">
+        <h1>Checkout Link Builder</h1>
+        <span class="badge">Sonia Internal Tool</span>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Route selection -->
+      <div class="route-toggle">
+        <button id="btn-offer" class="active" onclick="setRoute('offer')">
+          Offer Checkout (New Signups)
+        </button>
+        <button id="btn-inapp" onclick="setRoute('inapp')">
+          In-App Checkout (Existing Users)
+        </button>
+      </div>
+
+      <!-- In-app info banner -->
+      <div id="inapp-info" class="info-banner" style="display: none">
+        The in-app checkout requires the user to be logged in. Their
+        organisation must have a Stripe customer and the subscription status
+        must be TRIAL, CANCELED, or NONE. Contact info parameters are not
+        available — the user is already registered.
+      </div>
+
+      <!-- Product Configuration -->
+      <div class="card">
+        <h2><span class="icon">&#9881;</span> Product Configuration</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="pricingPlan">Pricing Plan</label>
+            <select id="pricingPlan" onchange="buildUrl()">
+              <option value="BASIC">BASIC</option>
+              <option value="PRO">PRO</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="amountSeats">Licences</label>
+            <input
+              type="number"
+              id="amountSeats"
+              min="1"
+              max="10"
+              value="1"
+              onchange="buildUrl()"
+              oninput="buildUrl()"
+            />
+            <span class="hint">1–10</span>
+          </div>
+          <div class="form-group">
+            <label for="paidMicQuantity">Paid Microphones</label>
+            <input
+              type="number"
+              id="paidMicQuantity"
+              min="0"
+              max="10"
+              value="0"
+              onchange="buildUrl()"
+              oninput="buildUrl()"
+            />
+            <span class="hint">0–10</span>
+          </div>
+          <div class="form-group">
+            <label for="couponCode">Coupon Code</label>
+            <input
+              type="text"
+              id="couponCode"
+              placeholder="e.g. WELCOME20"
+              oninput="buildUrl()"
+            />
+          </div>
+          <div class="form-group">
+            <label for="freeMicCount">Free Microphones</label>
+            <input
+              type="number"
+              id="freeMicCount"
+              min="0"
+              max="6"
+              value="0"
+              onchange="buildUrl()"
+              oninput="buildUrl()"
+            />
+            <span class="hint">0–6</span>
+          </div>
+          <div class="form-group">
+            <label>Start Date</label>
+            <div class="checkbox-row">
+              <input
+                type="checkbox"
+                id="startImmediately"
+                checked
+                onchange="toggleStartDate()"
+              />
+              <label for="startImmediately">Start immediately</label>
+            </div>
+            <div id="startDateRow" style="display: none; margin-top: 8px">
+              <input
+                type="date"
+                id="startDate"
+                onchange="buildUrl()"
+                style="width: 100%"
+              />
+              <span class="hint">Today – 7 months from now</span>
+              <div class="checkbox-row" style="margin-top: 6px">
+                <input
+                  type="checkbox"
+                  id="startDatePicker"
+                  onchange="buildUrl()"
+                />
+                <label for="startDatePicker"
+                  >Let customer change start date</label
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Info (offer only) -->
+      <div id="contact-card" class="card">
+        <h2 class="section-toggle open" onclick="toggleSection(this)">
+          <span class="icon">&#128100;</span> Contact Information (Pre-fill)
+        </h2>
+        <div class="collapsible open" id="contact-fields">
+          <div class="form-grid" style="margin-top: 12px">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="praxis@example.com"
+                oninput="buildUrl()"
+              />
+            </div>
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input
+                type="text"
+                id="firstName"
+                placeholder="Max"
+                oninput="buildUrl()"
+              />
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                placeholder="Mueller"
+                oninput="buildUrl()"
+              />
+            </div>
+            <div class="form-group">
+              <label for="organisationTitle">Organisation</label>
+              <input
+                type="text"
+                id="organisationTitle"
+                placeholder="Zahnarztpraxis Mueller"
+                oninput="buildUrl()"
+              />
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input
+                type="text"
+                id="phone"
+                placeholder="+49 123 456789"
+                oninput="buildUrl()"
+              />
+            </div>
+            <div class="form-group">
+              <label for="numberOfPractitioners">Practitioners</label>
+              <input
+                type="number"
+                id="numberOfPractitioners"
+                min="1"
+                max="99"
+                placeholder="1"
+                oninput="buildUrl()"
+              />
+              <span class="hint">1–99</span>
+            </div>
+            <div class="form-group">
+              <label for="primarySystem">PVS (Practice System)</label>
+              <select id="primarySystem" onchange="buildUrl()">
+                <option value="">— None</option>
+                <option value="SOLUTIO_CHARLY">Solutio Charly</option>
+                <option value="DAMPSOFT_DS_WIN">Dampsoft DS-Win</option>
+                <option value="DAMPSOFT_DS4">Dampsoft DS4</option>
+                <option value="CGM_Z1">CGM Z1</option>
+                <option value="CGM_HIGHDENT_PLUS">Highdent Plus</option>
+                <option value="EVIDENT">Evident</option>
+                <option value="DENTPORT">Dentport</option>
+                <option value="TEEMER">Teemer</option>
+                <option value="LINUDENT">Linudent</option>
+                <option value="DENSOFFICE">Densoffice</option>
+                <option value="DATAMED_D1">Datamed D1</option>
+                <option value="SITTA_DIOS">Sitta Dios</option>
+                <option value="DENVIS">Denvis</option>
+                <option value="IVORIS">Ivoris</option>
+                <option value="PATIENT_21_CLAIRE">Claire</option>
+                <option value="ERGODENT_4_WIN">ErgoDent4Win</option>
+                <option value="SOFTDENT">Softdent</option>
+                <option value="KOPFWERK_POWER_DENT">Kopfwerk Power.Dent</option>
+                <option value="PRAXIDENT">Praxident</option>
+                <option value="COMPUTER_FORUM_ORTHO_EXPRESS">Computer Forum: ortho Express</option>
+              </select>
+            </div>
+          </div>
+
+          <h2
+            class="section-toggle"
+            onclick="toggleSection(this)"
+            style="margin-top: 16px; font-size: 13px; color: #888"
+          >
+            <span class="icon">&#127968;</span> Address
+          </h2>
+          <div class="collapsible" id="address-fields">
+            <div class="form-grid" style="margin-top: 12px">
+              <div class="form-group">
+                <label for="street">Street</label>
+                <input
+                  type="text"
+                  id="street"
+                  placeholder="Musterstraße 1"
+                  oninput="buildUrl()"
+                />
+              </div>
+              <div class="form-group">
+                <label for="flat">Flat / Suite</label>
+                <input
+                  type="text"
+                  id="flat"
+                  placeholder="2. OG"
+                  oninput="buildUrl()"
+                />
+              </div>
+              <div class="form-group">
+                <label for="zip">ZIP</label>
+                <input
+                  type="text"
+                  id="zip"
+                  placeholder="10115"
+                  oninput="buildUrl()"
+                />
+              </div>
+              <div class="form-group">
+                <label for="city">City</label>
+                <input
+                  type="text"
+                  id="city"
+                  placeholder="Berlin"
+                  oninput="buildUrl()"
+                />
+              </div>
+              <div class="form-group">
+                <label for="country">Country</label>
+                <input
+                  type="text"
+                  id="country"
+                  placeholder="DE"
+                  oninput="buildUrl()"
+                />
+              </div>
+              <div class="form-group">
+                <label for="vatId">VAT ID</label>
+                <input
+                  type="text"
+                  id="vatId"
+                  placeholder="DE123456789"
+                  oninput="buildUrl()"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div class="card output-card">
+        <h2>Generated Link</h2>
+        <div class="url-display" id="url-display"></div>
+        <div class="output-actions">
+          <button class="btn btn-primary" id="copy-btn" onclick="copyUrl()">
+            Copy Link
+          </button>
+          <button class="btn btn-secondary" onclick="openUrl()">
+            Open in Browser
+          </button>
+          <button class="btn btn-secondary" onclick="resetForm()">
+            Reset All
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const BASE_URLS = {
+        offer: "https://app.sonia.so/signup/offer/checkout",
+        inapp: "https://app.sonia.so/app/checkout",
+      };
+
+      let currentRoute = "offer";
+
+      const FREE_MIC_CODES = {
+        1: "EERF",
+        2: "2EERF",
+        3: "3EERF",
+        4: "4EERF",
+        5: "5EERF",
+        6: "6EERF",
+      };
+
+      const PRODUCT_FIELDS = [
+        "pricingPlan",
+        "amountSeats",
+        "paidMicQuantity",
+        "couponCode",
+      ];
+      const CONTACT_FIELDS = [
+        "email",
+        "firstName",
+        "lastName",
+        "organisationTitle",
+        "phone",
+        "numberOfPractitioners",
+        "primarySystem",
+        "street",
+        "flat",
+        "zip",
+        "city",
+        "country",
+        "vatId",
+      ];
+
+      function setRoute(route) {
+        currentRoute = route;
+        document.getElementById("btn-offer").className =
+          route === "offer" ? "active" : "";
+        document.getElementById("btn-inapp").className =
+          route === "inapp" ? "active" : "";
+        document.getElementById("contact-card").style.display =
+          route === "offer" ? "" : "none";
+        document.getElementById("inapp-info").style.display =
+          route === "inapp" ? "" : "none";
+        buildUrl();
+      }
+
+      function getFieldValue(id) {
+        var el = document.getElementById(id);
+        if (!el) return "";
+        if (el.type === "checkbox") return el.checked ? "true" : "";
+        return (el.value || "").trim();
+      }
+
+      function toggleStartDate() {
+        var immediate = document.getElementById("startImmediately").checked;
+        document.getElementById("startDateRow").style.display = immediate
+          ? "none"
+          : "";
+        if (immediate) {
+          document.getElementById("startDate").value = "";
+        }
+        buildUrl();
+      }
+
+      function buildUrl() {
+        var base = BASE_URLS[currentRoute];
+        var params = [];
+
+        var fields =
+          currentRoute === "offer"
+            ? PRODUCT_FIELDS.concat(CONTACT_FIELDS)
+            : PRODUCT_FIELDS;
+
+        for (var i = 0; i < fields.length; i++) {
+          var key = fields[i];
+          var val = getFieldValue(key);
+          if (val) {
+            params.push(
+              encodeURIComponent(key) + "=" + encodeURIComponent(val),
+            );
+          }
+        }
+
+        // Free microphones
+        var freeMicCount = parseInt(getFieldValue("freeMicCount")) || 0;
+        if (freeMicCount > 0 && FREE_MIC_CODES[freeMicCount]) {
+          params.push("freeMicCode=" + FREE_MIC_CODES[freeMicCount]);
+        }
+
+        // Start date (only when not starting immediately)
+        var immediate = document.getElementById("startImmediately").checked;
+        if (!immediate) {
+          var startDate = getFieldValue("startDate");
+          if (startDate) {
+            params.push("startDate=" + encodeURIComponent(startDate));
+          }
+          if (document.getElementById("startDatePicker").checked) {
+            params.push("startDatePicker=true");
+          }
+        }
+
+        var fullUrl = params.length > 0 ? base + "?" + params.join("&") : base;
+
+        // Render with syntax highlighting
+        var display = document.getElementById("url-display");
+        if (params.length === 0) {
+          display.innerHTML = '<span class="base">' + escHtml(base) + "</span>";
+        } else {
+          var html =
+            '<span class="base">' +
+            escHtml(base) +
+            '</span><span class="sep">?</span>';
+          for (var j = 0; j < params.length; j++) {
+            if (j > 0) html += '<span class="sep">&amp;</span>';
+            var parts = params[j].split("=");
+            html +=
+              '<span class="param-key">' +
+              escHtml(decodeURIComponent(parts[0])) +
+              "</span>";
+            html += '<span class="sep">=</span>';
+            html +=
+              '<span class="param-val">' +
+              escHtml(decodeURIComponent(parts[1])) +
+              "</span>";
+          }
+          display.innerHTML = html;
+        }
+
+        window._generatedUrl = fullUrl;
+      }
+
+      function escHtml(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function copyUrl() {
+        navigator.clipboard
+          .writeText(window._generatedUrl || "")
+          .then(function () {
+            var btn = document.getElementById("copy-btn");
+            btn.textContent = "Copied!";
+            btn.className = "btn btn-success";
+            setTimeout(function () {
+              btn.textContent = "Copy Link";
+              btn.className = "btn btn-primary";
+            }, 1500);
+          });
+      }
+
+      function openUrl() {
+        if (window._generatedUrl) window.open(window._generatedUrl, "_blank");
+      }
+
+      function resetForm() {
+        var all = PRODUCT_FIELDS.concat(CONTACT_FIELDS);
+        for (var i = 0; i < all.length; i++) {
+          var el = document.getElementById(all[i]);
+          if (!el) continue;
+          if (el.type === "checkbox") el.checked = false;
+          else el.value = "";
+        }
+        document.getElementById("amountSeats").value = "1";
+        document.getElementById("paidMicQuantity").value = "0";
+        document.getElementById("freeMicCount").value = "0";
+        document.getElementById("pricingPlan").value = "BASIC";
+        document.getElementById("startDate").value = "";
+        document.getElementById("startImmediately").checked = true;
+        document.getElementById("startDatePicker").checked = false;
+        document.getElementById("startDateRow").style.display = "none";
+        buildUrl();
+      }
+
+      function toggleSection(header) {
+        header.classList.toggle("open");
+        var content = header.nextElementSibling;
+        content.classList.toggle("open");
+      }
+
+      // Init
+      buildUrl();
+    </script>
+  </body>
+</html>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sonia Checkout Link Builder</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
     <style>
       * {
         box-sizing: border-box;
@@ -638,6 +639,9 @@
           <button class="btn btn-secondary" onclick="openUrl()">
             Open in Browser
           </button>
+          <button class="btn btn-secondary" onclick="downloadQr()">
+            Download QR Code
+          </button>
           <button class="btn btn-secondary" onclick="resetForm()">
             Reset All
           </button>
@@ -807,6 +811,24 @@
 
       function openUrl() {
         if (window._generatedUrl) window.open(window._generatedUrl, "_blank");
+      }
+
+      function downloadQr() {
+        if (!window._generatedUrl) return;
+        var padding = 60;
+        var qrSize = 512;
+        var qr = new QRious({ value: window._generatedUrl, size: qrSize });
+        var canvas = document.createElement("canvas");
+        canvas.width = qrSize + padding * 2;
+        canvas.height = qrSize + padding * 2;
+        var ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(qr.canvas, padding, padding);
+        var a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = "checkout-qr.png";
+        a.click();
       }
 
       function resetForm() {

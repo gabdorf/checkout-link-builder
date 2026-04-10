@@ -153,6 +153,74 @@
       }
 
       /* Checkbox row */
+      /* Coupon tags */
+      .coupon-input-row {
+        display: flex;
+        gap: 6px;
+      }
+      .coupon-input-row input {
+        flex: 1;
+        padding: 8px 10px;
+        border: 1px solid #d0d0d0;
+        border-radius: 6px;
+        font-size: 14px;
+        background: #fff;
+        color: #1a1a1a;
+      }
+      .coupon-input-row input:focus {
+        outline: none;
+        border-color: #888;
+      }
+      .coupon-input-row input::placeholder {
+        color: #bbb;
+      }
+      .coupon-add-btn {
+        padding: 8px 12px;
+        border: 1px solid #d0d0d0;
+        border-radius: 6px;
+        background: #f5f5f5;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        color: #333;
+        white-space: nowrap;
+      }
+      .coupon-add-btn:hover {
+        background: #e8e8e8;
+      }
+      .coupon-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+      }
+      .coupon-tags:empty {
+        display: none;
+      }
+      .coupon-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #e8e8e8;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 13px;
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        color: #333;
+      }
+      .coupon-tag button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        color: #888;
+        padding: 0 2px;
+        line-height: 1;
+      }
+      .coupon-tag button:hover {
+        color: #c00;
+      }
+
       .checkbox-row {
         display: flex;
         align-items: center;
@@ -345,13 +413,17 @@
             <span class="hint">0–10</span>
           </div>
           <div class="form-group">
-            <label for="couponCode">Coupon Code</label>
-            <input
-              type="text"
-              id="couponCode"
-              placeholder="e.g. WELCOME20"
-              oninput="buildUrl()"
-            />
+            <label>Coupon Codes</label>
+            <div class="coupon-input-row">
+              <input
+                type="text"
+                id="couponInput"
+                placeholder="e.g. WELCOME20"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();addCoupon()}"
+              />
+              <button type="button" class="coupon-add-btn" onclick="addCoupon()">+ Add</button>
+            </div>
+            <div class="coupon-tags" id="couponTags"></div>
           </div>
           <div class="form-group">
             <label for="freeMicCount">Free Microphones</label>
@@ -666,11 +738,12 @@
         6: "6EERF",
       };
 
+      var couponCodes = [];
+
       const PRODUCT_FIELDS = [
         "pricingPlan",
         "amountSeats",
         "paidMicQuantity",
-        "couponCode",
       ];
       const UTM_FIELDS = ["utm_source", "utm_medium", "utm_campaign"];
 
@@ -721,6 +794,40 @@
         buildUrl();
       }
 
+      function addCoupon() {
+        var input = document.getElementById("couponInput");
+        var code = input.value.trim();
+        if (!code) return;
+        if (couponCodes.indexOf(code) !== -1) {
+          input.value = "";
+          return;
+        }
+        couponCodes.push(code);
+        input.value = "";
+        renderCouponTags();
+        buildUrl();
+      }
+
+      function removeCoupon(index) {
+        couponCodes.splice(index, 1);
+        renderCouponTags();
+        buildUrl();
+      }
+
+      function renderCouponTags() {
+        var container = document.getElementById("couponTags");
+        container.innerHTML = couponCodes
+          .map(function (code, i) {
+            return (
+              '<span class="coupon-tag">' +
+              escHtml(code) +
+              '<button onclick="removeCoupon(' + i + ')" title="Remove">&times;</button>' +
+              "</span>"
+            );
+          })
+          .join("");
+      }
+
       function buildUrl() {
         var base = BASE_URLS[currentRoute];
         var params = [];
@@ -738,6 +845,13 @@
               encodeURIComponent(key) + "=" + encodeURIComponent(val),
             );
           }
+        }
+
+        // Coupon codes (comma-separated for multiple)
+        if (couponCodes.length > 0) {
+          params.push(
+            "couponCode=" + encodeURIComponent(couponCodes.join(",")),
+          );
         }
 
         // Free microphones
@@ -839,6 +953,9 @@
           if (el.type === "checkbox") el.checked = false;
           else el.value = "";
         }
+        document.getElementById("couponInput").value = "";
+        couponCodes = [];
+        renderCouponTags();
         document.getElementById("amountSeats").value = "1";
         document.getElementById("paidMicQuantity").value = "0";
         document.getElementById("freeMicCount").value = "0";

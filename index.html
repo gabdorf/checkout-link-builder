@@ -152,6 +152,78 @@
         color: #999;
       }
 
+      /* Tooltip ? icon */
+      .tooltip-trigger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 15px;
+        height: 15px;
+        margin-left: 6px;
+        border-radius: 50%;
+        background: #c8c8c8;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        cursor: pointer;
+        position: relative;
+        user-select: none;
+        vertical-align: middle;
+      }
+      .tooltip-trigger:hover,
+      .tooltip-trigger:focus,
+      .tooltip-trigger.active {
+        background: #1a1a1a;
+        outline: none;
+      }
+      .tooltip-content {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        left: -4px;
+        width: 320px;
+        padding: 12px 14px;
+        background: #1a1a1a;
+        color: #d8d8d8;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.55;
+        text-align: left;
+        z-index: 20;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+        cursor: auto;
+      }
+      .tooltip-content::before {
+        content: "";
+        position: absolute;
+        top: -5px;
+        left: 8px;
+        width: 10px;
+        height: 10px;
+        background: #1a1a1a;
+        transform: rotate(45deg);
+      }
+      .tooltip-trigger.active > .tooltip-content {
+        display: block;
+      }
+      .tooltip-content ul {
+        margin: 6px 0 8px;
+        padding-left: 16px;
+      }
+      .tooltip-content li {
+        margin: 3px 0;
+      }
+      .tooltip-content strong {
+        color: #fff;
+      }
+      .tooltip-content .tooltip-lede {
+        margin: 6px 0 8px;
+        color: #b0b0b0;
+        font-style: italic;
+      }
+
       /* Checkbox row */
       /* Coupon tags */
       .coupon-input-row {
@@ -219,6 +291,43 @@
       }
       .coupon-tag button:hover {
         color: #c00;
+      }
+
+      /* Coupon rules card body */
+      .coupon-rules-content {
+        font-size: 13px;
+        line-height: 1.55;
+        color: #444;
+        padding-top: 12px;
+      }
+      .coupon-rules-content p {
+        margin: 8px 0;
+      }
+      .coupon-rules-content p:first-child {
+        margin-top: 0;
+      }
+      .coupon-rules-content ul {
+        margin: 6px 0 8px;
+        padding-left: 20px;
+      }
+      .coupon-rules-content li {
+        margin: 3px 0;
+      }
+      .coupon-rules-content strong {
+        color: #1a1a1a;
+      }
+      .coupon-rules-note {
+        margin-top: 12px;
+        padding: 10px 12px;
+        background: #fff7e6;
+        border-left: 3px solid #e0a030;
+        border-radius: 3px;
+        color: #5a4515;
+      }
+      .coupon-rules-footnote {
+        margin-top: 12px !important;
+        color: #777;
+        font-size: 12px;
       }
 
       .checkbox-row {
@@ -413,7 +522,37 @@
             <span class="hint">0–10</span>
           </div>
           <div class="form-group">
-            <label>Coupon Codes</label>
+            <label>
+              Coupon Codes
+              <span
+                class="tooltip-trigger"
+                tabindex="0"
+                role="button"
+                aria-label="Stacking rules — quick reference"
+              >?
+                <span class="tooltip-content" role="tooltip">
+                  <strong>Quick rules</strong>
+                  <p class="tooltip-lede">Check each code's scope in Stripe first.</p>
+                  <ul>
+                    <li>
+                      Codes stack only if they discount
+                      <strong>different products</strong>. Example:
+                      <em>subscription 50% + onboarding 100%</em> &rarr;
+                      both apply.
+                    </li>
+                    <li>
+                      Any overlap (same product covered twice, or one
+                      code discounts everything) &rarr; first code
+                      wins, the rest are silently dropped.
+                    </li>
+                    <li>
+                      The customer can't override or remove what you
+                      set.
+                    </li>
+                  </ul>
+                </span>
+              </span>
+            </label>
             <div class="coupon-input-row">
               <input
                 type="text"
@@ -424,6 +563,7 @@
               <button type="button" class="coupon-add-btn" onclick="addCoupon()">+ Add</button>
             </div>
             <div class="coupon-tags" id="couponTags"></div>
+            <span class="hint">Multiple codes allowed — see <a href="#coupon-rules" style="color: inherit;">stacking rules</a> below.</span>
           </div>
           <div class="form-group">
             <label for="freeMicCount">Free Microphones</label>
@@ -469,6 +609,73 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Coupon stacking rules -->
+      <div id="coupon-rules" class="card">
+        <h2 class="section-toggle" onclick="toggleSection(this)">
+          <span class="icon">&#127903;</span> Coupon Stacking Rules
+        </h2>
+        <div class="collapsible coupon-rules-content">
+          <p>
+            <strong>The rule:</strong> at most one coupon per product line.
+            There are three lines: <em>Subscription</em>,
+            <em>Onboarding</em>, and <em>Microphone</em>.
+          </p>
+
+          <p>
+            <strong>Two coupon types</strong> (set when the coupon is
+            created in Stripe):
+          </p>
+          <ul>
+            <li>
+              <strong>Targeted</strong> &mdash; covers specific product
+              line(s). Different targeted coupons on different lines
+              <strong>stack</strong> (e.g. one subscription-only + one
+              onboarding-only + one microphone-only &rarr; three discounts
+              at once).
+            </li>
+            <li>
+              <strong>General</strong> &mdash; covers every product line.
+              <strong>Cannot be combined</strong> with any other coupon
+              (including other generals).
+            </li>
+          </ul>
+
+          <p>
+            <strong>If codes in the Coupon Codes field conflict</strong>
+            (two targeteds covering the same line, or anything paired with
+            a general): the <em>first code wins</em>; the rest are silently
+            dropped when the link loads. The URL is rewritten to the final
+            state, so reloading is idempotent.
+          </p>
+
+          <p><strong>What the customer sees:</strong></p>
+          <ul>
+            <li>
+              Each applied coupon is a green badge above the checkout form
+              with the discount spelled out.
+            </li>
+            <li>
+              If the customer types a coupon code that would conflict with
+              what you set here, <em>their code is rejected</em> with a
+              message naming the conflict &mdash; yours stays. They cannot
+              accidentally lose the discount you gave them.
+            </li>
+          </ul>
+
+          <div class="coupon-rules-note">
+            <strong>Heads-up:</strong> there is currently no in-page
+            "remove coupon" button on the checkout. If you send the wrong
+            combo, the customer would have to edit the URL themselves to
+            fix it. Plan the combination carefully before sending the link.
+          </div>
+
+          <p class="coupon-rules-footnote">
+            Look up a coupon's scope and value in the Stripe dashboard
+            before adding it to the link.
+          </p>
         </div>
       </div>
 
@@ -972,6 +1179,30 @@
         var content = header.nextElementSibling;
         content.classList.toggle("open");
       }
+
+      // Tooltip click-toggle (click outside or on trigger again to close)
+      document.querySelectorAll(".tooltip-trigger").forEach(function (trigger) {
+        trigger.addEventListener("click", function (e) {
+          if (e.target.closest(".tooltip-content")) return;
+          e.stopPropagation();
+          trigger.classList.toggle("active");
+        });
+        trigger.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            trigger.classList.toggle("active");
+          } else if (e.key === "Escape") {
+            trigger.classList.remove("active");
+          }
+        });
+      });
+      document.addEventListener("click", function () {
+        document
+          .querySelectorAll(".tooltip-trigger.active")
+          .forEach(function (t) {
+            t.classList.remove("active");
+          });
+      });
 
       // Init
       buildUrl();
